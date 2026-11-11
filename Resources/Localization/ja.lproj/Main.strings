@@ -671,3 +671,6 @@
 
 /* Class = "NSMenuItem"; title = "MiaoYan for iPhone and iPad"; ObjectID = "mYi-Ph-iPd"; */
 "mYi-Ph-iPd.title" = "iPhone・iPad 版";
+
+/* Text color formatting command. */
+"TxC-01-col.title" = "文字色";

@@ -349,3 +349,9 @@
 "No results" = "結果なし";
 "%@: %@" = "%@：%@";
 "MiaoYan for iPhone and iPad" = "iPhone・iPad 版";
+
+/* Text color formatting. */
+"Text Color" = "文字色";
+"Default Text Color" = "既定の文字色";
+"Color applied by the Text Color command" = "「文字色」コマンドで適用する色";
+"Choose…" = "選択…";

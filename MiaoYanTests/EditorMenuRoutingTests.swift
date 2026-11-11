@@ -36,6 +36,105 @@ final class EditorMenuRoutingTests: XCTestCase {
         XCTAssertEqual(standIn.string, "")
     }
 
+    @MainActor
+    func testTextColorMenuUsesTheWindowEditorAndSupportsUndoRedo() throws {
+        let previousColor = UserDefaults.standard.object(forKey: "defaultTextColor")
+        let previousEditor = EditorMenuManager.windowEditor
+        defer {
+            UserDefaults.standard.set(previousColor, forKey: "defaultTextColor")
+            EditorMenuManager.windowEditor = previousEditor
+        }
+        UserDefaultsManagement.defaultTextColor = "#12abef"
+        let body = "😀 before 橙色 after"
+        let (editor, _) = makeEditor(body)
+        let window = NSWindow(contentRect: editor.frame, styleMask: [.titled], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        window.contentView = editor
+        editor.allowsUndo = true
+        window.makeFirstResponder(editor)
+        editor.setSelectedRange((body as NSString).range(of: "橙色"))
+        let standIn = EditTextView(frame: .zero)
+        standIn.configureOnLoad()
+        EditorMenuManager.windowEditor = { editor }
+        let undo = try XCTUnwrap(editor.undoManager)
+        undo.beginUndoGrouping()
+        standIn.textColorMenu(NSMenuItem())
+        undo.endUndoGrouping()
+        let expected = "😀 before <span style=\"color:#12ABEF\">橙色</span> after"
+        XCTAssertEqual(editor.string, expected)
+        XCTAssertEqual((editor.string as NSString).substring(with: editor.selectedRange()), "橙色")
+        XCTAssertEqual(standIn.string, "")
+        XCTAssertTrue(undo.canUndo)
+        undo.undo()
+        XCTAssertEqual(editor.string, body)
+        undo.redo()
+        XCTAssertEqual(editor.string, expected)
+        window.orderOut(nil)
+    }
+
+    @MainActor
+    func testTextColorPreferencePersistsAndInvalidStoredColorFallsBack() {
+        let defaults = UserDefaults.standard
+        let previous = defaults.object(forKey: "defaultTextColor")
+        defer { defaults.set(previous, forKey: "defaultTextColor") }
+        defaults.removeObject(forKey: "defaultTextColor")
+        XCTAssertEqual(UserDefaultsManagement.defaultTextColor, "#FFA500")
+        UserDefaultsManagement.defaultTextColor = "#ab12ef"
+        XCTAssertEqual(defaults.string(forKey: "defaultTextColor"), "#AB12EF")
+        XCTAssertEqual(UserDefaultsManagement.defaultTextColor, "#AB12EF")
+        defaults.set("red; background:black", forKey: "defaultTextColor")
+        XCTAssertEqual(UserDefaultsManagement.defaultTextColor, "#FFA500")
+    }
+
+    @MainActor
+    func testTextColorDoesNothingWithoutASelection() {
+        let (editor, note) = makeEditor("unchanged")
+        editor.setSelectedRange(NSRange(location: 3, length: 0))
+        TextFormatter(textView: editor, note: note).textColor()
+        XCTAssertEqual(editor.string, "unchanged")
+        XCTAssertEqual(editor.selectedRange(), NSRange(location: 3, length: 0))
+    }
+
+    @MainActor
+    func testTextColorDoesNotChangeAReadOnlyEditor() {
+        let (editor, note) = makeEditor("read only")
+        editor.isEditable = false
+        editor.setSelectedRange(NSRange(location: 0, length: 4))
+        TextFormatter(textView: editor, note: note).textColor()
+        XCTAssertEqual(editor.string, "read only")
+    }
+
+    @MainActor
+    func testColoredTextSurvivesSavingAndReopening() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("miaoyan-text-color-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let url = folder.appendingPathComponent("color.md")
+        try "文字😀".write(to: url, atomically: true, encoding: .utf8)
+        let note = Note(url: url, with: Project(url: folder, label: "color", isRoot: true))
+        note.load()
+        let editor = EditTextView(frame: .zero)
+        editor.publishStorage(note.content, owner: note)
+        editor.setSelectedRange(NSRange(location: 0, length: note.content.length))
+        TextFormatter(textView: editor, note: note).textColor()
+        editor.saveTextStorageContent(to: note)
+        note.save(globalStorage: false)
+        XCTAssertEqual(try String(contentsOf: url, encoding: .utf8), editor.string)
+        let reopened = Note(url: url, with: note.project)
+        reopened.load()
+        XCTAssertEqual(reopened.content.string, editor.string)
+        XCTAssertTrue(editor.string.contains("<span style=\"color:"))
+    }
+
+    @MainActor
+    func testTextColorSpanIsPreservedByTheMarkdownRenderer() throws {
+        let edit = try XCTUnwrap(TextColorFormatting.replacement(for: "**bold** & 文字😀", color: "#FFA500"))
+        let html = try XCTUnwrap(renderMarkdownHTML(markdown: edit.text, useGithubLineBreak: false))
+        XCTAssertTrue(html.contains("<span style=\"color:#FFA500\">"))
+        XCTAssertTrue(html.contains("<strong>bold</strong>"))
+        XCTAssertTrue(html.contains("文字😀</span>"))
+    }
+
     /// File > Single Mode targets the Application scene's stand-in
     /// ViewController, whose outlets are nil. Its panel callback reloaded on
     /// that stand-in and trapped on `storageOutlineView` as soon as a folder

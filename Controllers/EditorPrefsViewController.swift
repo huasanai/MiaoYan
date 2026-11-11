@@ -4,6 +4,8 @@ import Cocoa
 final class EditorPrefsViewController: BasePrefsViewController {
     private var settings = EditorSettings()
     private var defaultModeDropdown: PrefsDropdown!
+    private var textColorButton: PrefsPillButton!
+    private var isChoosingTextColor = false
     private var uploadDropdown: PrefsDropdown!
     private var lineBreakDropdown: PrefsDropdown!
     private var lineBreakRow: PrefsRowView!
@@ -15,10 +17,31 @@ final class EditorPrefsViewController: BasePrefsViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(self, selector: #selector(handleSplitViewModeChanged), name: .splitViewModeChanged, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(textColorWindowEnded(_:)), name: NSWindow.willCloseNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(textColorWindowEnded(_:)), name: NSWindow.didResignMainNotification, object: nil)
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
+    }
+
+    override func viewWillDisappear() {
+        super.viewWillDisappear()
+        endChoosingTextColor()
+    }
+
+    @objc private func textColorWindowEnded(_ notification: Notification) {
+        guard isChoosingTextColor, let window = notification.object as? NSWindow else { return }
+        if window === view.window || window === NSColorPanel.shared { endChoosingTextColor() }
+    }
+
+    private func endChoosingTextColor() {
+        guard isChoosingTextColor else { return }
+        isChoosingTextColor = false
+        let panel = NSColorPanel.shared
+        panel.setTarget(nil)
+        panel.setAction(nil)
+        panel.orderOut(nil)
     }
 
     @objc private func handleSplitViewModeChanged() {
@@ -29,6 +52,9 @@ final class EditorPrefsViewController: BasePrefsViewController {
         defaultModeDropdown = makeDropdown(action: #selector(defaultModeChanged(_:)))
         defaultModeDropdown.addOption(I18n.str("Editing"), value: false)
         defaultModeDropdown.addOption(I18n.str("Split"), value: true)
+
+        textColorButton = PrefsPillButton(title: I18n.str("Choose…"), target: self, action: #selector(chooseTextColor(_:)))
+        textColorButton.setAccessibilityLabel(I18n.str("Default Text Color"))
 
         uploadDropdown = makeDropdown(action: #selector(uploadServiceChanged(_:)))
         uploadDropdown.addOption(I18n.str("None"), value: "None")
@@ -55,6 +81,7 @@ final class EditorPrefsViewController: BasePrefsViewController {
         addSections([
             [
                 PrefsRowView(title: I18n.str("Default Mode"), detail: I18n.str("Write alone, or with the preview beside it"), controls: [defaultModeDropdown]),
+                PrefsRowView(title: I18n.str("Default Text Color"), detail: I18n.str("Color applied by the Text Color command"), controls: [textColorButton]),
                 PrefsRowView(title: I18n.str("Image Upload"), detail: I18n.str("Send pasted images through an uploader app"), controls: [uploadDropdown]),
             ],
             [
@@ -74,6 +101,7 @@ final class EditorPrefsViewController: BasePrefsViewController {
 
     override func setupValues() {
         defaultModeDropdown.selectOption { $0 as? Bool == UserDefaultsManagement.splitViewMode }
+        updateTextColorButton()
         uploadDropdown.selectOption { $0 as? String == UserDefaultsManagement.defaultPicUpload }
         lineBreakDropdown.selectOption { $0 as? String == settings.editorLineBreak }
         previewLocationDropdown.selectOption { $0 as? String == settings.previewLocation }
@@ -91,6 +119,42 @@ final class EditorPrefsViewController: BasePrefsViewController {
     }
 
     // MARK: - Actions
+
+    private func updateTextColorButton() {
+        let hex = UserDefaultsManagement.defaultTextColor
+        let rgb = UInt32(hex.dropFirst(), radix: 16) ?? 0xFFA500
+        textColorButton.swatchColor = NSColor(
+            srgbRed: CGFloat((rgb >> 16) & 255) / 255,
+            green: CGFloat((rgb >> 8) & 255) / 255,
+            blue: CGFloat(rgb & 255) / 255, alpha: 1)
+        textColorButton.toolTip = hex
+        textColorButton.setAccessibilityValue(hex)
+    }
+
+    @objc private func chooseTextColor(_ sender: Any) {
+        let panel = NSColorPanel.shared
+        panel.setTarget(nil)
+        panel.setAction(nil)
+        panel.color = textColorButton.swatchColor ?? .orange
+        panel.showsAlpha = false
+        panel.isContinuous = true
+        panel.title = I18n.str("Default Text Color")
+        isChoosingTextColor = true
+        panel.setTarget(self)
+        panel.setAction(#selector(textColorChanged(_:)))
+        panel.makeKeyAndOrderFront(sender)
+    }
+
+    @objc private func textColorChanged(_ sender: NSColorPanel) {
+        // NSTextView also updates the shared panel when selection changes.
+        // Only a visible picker session owned by Settings may change the default.
+        guard isChoosingTextColor, sender.isVisible, view.window?.isVisible == true,
+            let color = sender.color.usingColorSpace(.sRGB)
+        else { return }
+        let components = [color.redComponent, color.greenComponent, color.blueComponent].map { Int((min(1, max(0, $0)) * 255).rounded()) }
+        UserDefaultsManagement.defaultTextColor = String(format: "#%02X%02X%02X", components[0], components[1], components[2])
+        updateTextColorButton()
+    }
 
     @objc private func defaultModeChanged(_ sender: PrefsDropdown) {
         guard let isSplit = sender.selectedItem?.representedObject as? Bool else { return }

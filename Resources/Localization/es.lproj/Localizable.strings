@@ -343,3 +343,9 @@
 "Press ⌘N to create a note" = "Pulsa ⌘N para crear una nota";
 "No results" = "Sin resultados";
 "MiaoYan for iPhone and iPad" = "MiaoYan para iPhone y iPad";
+
+/* Text color formatting. */
+"Text Color" = "Color del texto";
+"Default Text Color" = "Color de texto predeterminado";
+"Color applied by the Text Color command" = "Color del comando «Color del texto»";
+"Choose…" = "Elegir…";

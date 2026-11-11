@@ -325,3 +325,9 @@
 "No results" = "沒有結果";
 "%@: %@" = "%@：%@";
 "MiaoYan for iPhone and iPad" = "iPhone 與 iPad 版";
+
+/* Text color formatting. */
+"Text Color" = "文字顏色";
+"Default Text Color" = "預設文字顏色";
+"Color applied by the Text Color command" = "透過「文字顏色」指令套用的顏色";
+"Choose…" = "選擇…";

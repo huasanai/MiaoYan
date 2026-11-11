@@ -331,6 +331,13 @@ final class PrefsDropdown: NSPopUpButton {
 /// control in the column reads alike.
 @MainActor
 final class PrefsPillButton: NSButton {
+    var swatchColor: NSColor? {
+        didSet {
+            invalidateIntrinsicContentSize()
+            needsDisplay = true
+        }
+    }
+
     private let hover = HoverTracker()
     private var isHovered = false {
         didSet { needsDisplay = true }
@@ -359,13 +366,20 @@ final class PrefsPillButton: NSButton {
     override var focusRingMaskBounds: NSRect { bounds }
 
     override var intrinsicContentSize: NSSize {
-        NSSize(width: textWidth(title, font: PrefsMetrics.controlFont) + PrefsMetrics.pillHorizontalPadding * 2, height: PrefsMetrics.controlHeight)
+        NSSize(width: textWidth(title, font: PrefsMetrics.controlFont) + PrefsMetrics.pillHorizontalPadding * 2 + (swatchColor == nil ? 0 : 18), height: PrefsMetrics.controlHeight)
     }
 
     override func draw(_ dirtyRect: NSRect) {
         let rect = NSRect(x: 0, y: (bounds.height - PrefsMetrics.controlHeight) / 2, width: bounds.width, height: PrefsMetrics.controlHeight)
         drawCapsule(in: rect, color: isHighlighted || isHovered ? Theme.Settings.controlHoverFill : Theme.Settings.controlFill)
-        drawCentredText(title, in: rect, color: Theme.Settings.secondaryText, font: PrefsMetrics.controlFont)
+        var titleRect = rect
+        if let swatchColor {
+            swatchColor.setFill()
+            NSBezierPath(ovalIn: NSRect(x: rect.minX + PrefsMetrics.pillHorizontalPadding, y: rect.midY - 5, width: 10, height: 10)).fill()
+            titleRect.origin.x += 18
+            titleRect.size.width -= 18
+        }
+        drawCentredText(title, in: titleRect, color: Theme.Settings.secondaryText, font: PrefsMetrics.controlFont)
     }
 
     override func updateTrackingAreas() {

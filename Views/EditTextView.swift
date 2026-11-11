@@ -390,6 +390,10 @@ class EditTextView: NSTextView, @preconcurrency NSTextFinderClient {
         menuManager?.performFormattingAction(.underline)
     }
 
+    @IBAction func textColorMenu(_ sender: Any) {
+        menuManager?.performFormattingAction(.textColor)
+    }
+
     @IBAction func deletelineMenu(_ sender: Any) {
         menuManager?.performFormattingAction(.deleteline)
     }

@@ -175,6 +175,8 @@
 		D7ED6892200F87BD00FF975A /* Initial in Resources */ = {isa = PBXBuildFile; fileRef = D7ED6891200F87BD00FF975A /* Initial */; };
 		D7F95F3A1FF2759300E2A447 /* NotesTextProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7F95F391FF2759300E2A447 /* NotesTextProcessor.swift */; };
 		DED88A40FE6B4D8A8A6C1573 /* MiaoYanTests/NoteSaveDebounceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B42684E4812440381B81D4A /* MiaoYanTests/NoteSaveDebounceTests.swift */; };
+		C01000000000000000000001 /* TextColorFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01000000000000000000002 /* TextColorFormatting.swift */; };
+		C01000000000000000000003 /* MiaoYanTests/TextColorFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01000000000000000000004 /* MiaoYanTests/TextColorFormattingTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -391,6 +393,8 @@
 		E38D0BC1B6A40BDD6D98E4F5 /* Business/AppEnvironment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Business/AppEnvironment.swift; sourceTree = SOURCE_ROOT; };
 		b2384ca08b9b4d1389a7bf4e0ae47758 /* FontConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontConfiguration.swift; sourceTree = "<group>"; };
 		96abbc94aea8fefa85d6bd3fb488f38a /* FontCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontCatalog.swift; sourceTree = "<group>"; };
+		C01000000000000000000002 /* TextColorFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextColorFormatting.swift; sourceTree = "<group>"; };
+		C01000000000000000000004 /* MiaoYanTests/TextColorFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiaoYanTests/TextColorFormattingTests.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -506,6 +510,7 @@
 				E3EAD2888569490FABA80DB8 /* MiaoYanTests/TitleInputTests.swift */,
 				90264F9B678B774307403426 /* MiaoYanTests/ConflictBackupPathTests.swift */,
 				9880FD63356E90A59E9ECB15 /* MiaoYanTests/EditorMenuRoutingTests.swift */,
+				C01000000000000000000004 /* MiaoYanTests/TextColorFormattingTests.swift */,
 				D850FFA857162CFDC58FD691 /* MiaoYanTests/NotesTableReloadTests.swift */,
 				9E08B471339557753C8350EE /* MiaoYanTests/StorageRelocationTests.swift */,
 				68C5946B8D70ED7EA8AAF369 /* MiaoYanTests/CheckboxToggleTests.swift */,
@@ -693,6 +698,7 @@
 				D777D7802009115C00D86B33 /* ImagesProcessor.swift */,
 				D7F95F391FF2759300E2A447 /* NotesTextProcessor.swift */,
 				D76025B1204EEF64000B9F59 /* TextFormatter.swift */,
+				C01000000000000000000002 /* TextColorFormatting.swift */,
 				D76447DB1F3A4F0700965F01 /* UserDefaultsManagement.swift */,
 				27C34C0D28928D0B007369E5 /* Emoji.swift */,
 				8FD4E9A039653D603B5A7868 /* Helpers/Diagnostics.swift */,
@@ -884,6 +890,7 @@
 				C8C05AA8FA7740259CBDFD1F /* MiaoYanTests/TitleInputTests.swift in Sources */,
 				FDB06D96D28FCCD7E8008048 /* MiaoYanTests/ConflictBackupPathTests.swift in Sources */,
 				4D622B20D7A8935A9CA84294 /* MiaoYanTests/EditorMenuRoutingTests.swift in Sources */,
+				C01000000000000000000003 /* MiaoYanTests/TextColorFormattingTests.swift in Sources */,
 				DEEA4E29F1F475084B5F13A5 /* MiaoYanTests/NotesTableReloadTests.swift in Sources */,
 				4C24DBFE74DA90CA7C1226C5 /* MiaoYanTests/StorageRelocationTests.swift in Sources */,
 				0F781E534BBC8CE2ADDAC308 /* MiaoYanTests/CheckboxToggleTests.swift in Sources */,
@@ -963,6 +970,7 @@
 				D7D1DE68216D05A800AC1845 /* NameTextField.swift in Sources */,
 				D735E5BF1F2F001500173215 /* NoteRowView.swift in Sources */,
 				D76025B2204EEF64000B9F59 /* TextFormatter.swift in Sources */,
+				C01000000000000000000001 /* TextColorFormatting.swift in Sources */,
 				D7038E2620FB24E000A54E69 /* NoteAttachment.swift in Sources */,
 				D74112281FABA21B00AB619A /* MainWindow.swift in Sources */,
 				D7E025081F3B6DDB00EDDA32 /* Storage.swift in Sources */,

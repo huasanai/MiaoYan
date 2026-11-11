@@ -123,6 +123,7 @@ public enum UserDefaultsManagement {
         static let NoteType = "noteType"
         static let ImagesWidthKey = "imagesWidthKey"
         static let DefaultLanguageKey = "defaultLanguage"
+        static let DefaultTextColor = "defaultTextColor"
         static let DefaultPicUpload = "defaultPicUpload"
         static let LastSelectedPath = "lastSelectedPath"
         static let LastProject = "lastProject"
@@ -242,6 +243,13 @@ public enum UserDefaultsManagement {
             UserDefaults.standard.set(newValue, forKey: Constants.DefaultLanguageKey)
         }
     }
+    /// A CSS hex value, separate from the editor's overall text color.
+    /// Restrict the stored value so it can safely enter an HTML attribute.
+    static var defaultTextColor: String {
+        get { TextColorFormatting.normalizedColor(UserDefaults.standard.string(forKey: Constants.DefaultTextColor) ?? TextColorFormatting.defaultColor) }
+        set { UserDefaults.standard.set(TextColorFormatting.normalizedColor(newValue), forKey: Constants.DefaultTextColor) }
+    }
+
     static var defaultPicUpload: String {
         get {
             if let dl = UserDefaults.standard.object(forKey: Constants.DefaultPicUpload) as? String {

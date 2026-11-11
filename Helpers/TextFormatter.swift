@@ -70,6 +70,15 @@ public class TextFormatter {
         }
     }
 
+    func textColor() {
+        guard note.isMarkdown(), textView.isEditable, !textView.hasMarkedText(), range.length > 0,
+            let replacement = TextColorFormatting.replacement(for: attributedString.string, color: UserDefaultsManagement.defaultTextColor)
+        else { return }
+        textView.breakUndoCoalescing()
+        insertText(replacement.text, selectRange: NSRange(location: range.location + replacement.selection.location, length: replacement.selection.length))
+        textView.breakUndoCoalescing()
+    }
+
     public func deleteline() {
         if note.isMarkdown() {
             let string = "~~" + attributedString.string + "~~"

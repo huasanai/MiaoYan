@@ -5,6 +5,44 @@ import XCTest
 @testable import MiaoYan
 
 final class PrefsWindowControllerTests: XCTestCase {
+    /// NSTextView keeps updating the shared color panel after it closes.
+    /// Those programmatic updates must not overwrite a chosen default.
+    @MainActor
+    func testClosedTextColorPickerCannotOverwriteTheDefault() throws {
+        let previous = UserDefaults.standard.object(forKey: "defaultTextColor")
+        let previousMainWindow = NSApp.mainWindow
+        let controller = EditorPrefsViewController()
+        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 568, height: 500), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        window.isReleasedWhenClosed = false
+        window.contentViewController = controller
+        UserDefaultsManagement.defaultTextColor = "#FFA500"
+        window.makeKeyAndOrderFront(nil)
+        window.makeMain()
+        defer {
+            NSColorPanel.shared.close()
+            window.close()
+            previousMainWindow?.makeKeyAndOrderFront(nil)
+            UserDefaults.standard.set(previous, forKey: "defaultTextColor")
+        }
+        func buttons(in view: NSView) -> [NSButton] {
+            view.subviews.flatMap { subview in
+                if let button = subview as? NSButton { return [button] }
+                return buttons(in: subview)
+            }
+        }
+        let choose = try XCTUnwrap(buttons(in: controller.view).first { $0.action == NSSelectorFromString("chooseTextColor:") })
+        choose.performClick(nil)
+        let panel = NSColorPanel.shared
+        panel.color = NSColor(srgbRed: 0, green: 122.0 / 255, blue: 1, alpha: 1)
+        controller.perform(NSSelectorFromString("textColorChanged:"), with: panel)
+        XCTAssertEqual(UserDefaultsManagement.defaultTextColor, "#007AFF")
+        panel.close()
+        // Simulate the editor synchronizing its grey foreground into the panel.
+        panel.color = .gray
+        controller.perform(NSSelectorFromString("textColorChanged:"), with: panel)
+        XCTAssertEqual(UserDefaultsManagement.defaultTextColor, "#007AFF")
+    }
+
     @MainActor
     func testFontMenusRefreshInstalledFamiliesWithoutChangingSelection() throws {
         let controller = TypographyPrefsViewController()

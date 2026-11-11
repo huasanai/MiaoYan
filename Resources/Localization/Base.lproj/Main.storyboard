@@ -314,6 +314,12 @@ CA
                                                 <action selector="italicMenu:" target="N0L-g4-qwj" id="85z-fY-Svh"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Text Color" keyEquivalent="C" id="TxC-01-col">
+                                            <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="textColorMenu:" target="N0L-g4-qwj" id="TxC-02-act"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem title="Underline" keyEquivalent="u" id="6nc-Nb-dtR">
                                             <connections>
                                                 <action selector="underlineMenu:" target="N0L-g4-qwj" id="yrX-J3-OGF"/>

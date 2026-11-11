@@ -47,6 +47,8 @@ class EditorMenuManager {
             formatter.toggleTodo()
         case .underline:
             formatter.underline()
+        case .textColor:
+            formatter.textColor()
         case .deleteline:
             formatter.deleteline()
         case .inlineCode:
@@ -179,6 +181,7 @@ enum FormattingAction {
     case link
     case todo
     case underline
+    case textColor
     case deleteline
     case inlineCode
     case codeBlock
